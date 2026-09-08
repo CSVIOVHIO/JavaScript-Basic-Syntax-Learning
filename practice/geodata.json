@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "name": "demo-campus",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "type": "building", "name": "教学楼A", "floors": 6 },
+      "geometry": { "type": "Polygon", "coordinates": [[[0, 0], [100, 0], [100, 50], [0, 50], [0, 0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "building", "name": "图书馆", "floors": 8 },
+      "geometry": { "type": "Polygon", "coordinates": [[[120, 0], [200, 0], [200, 60], [120, 60], [120, 0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "building", "name": "实验楼", "floors": 4 },
+      "geometry": { "type": "Polygon", "coordinates": [[[220, 0], [280, 0], [280, 40], [220, 40], [220, 0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "road", "name": "主干道", "width": 20 },
+      "geometry": { "type": "LineString", "coordinates": [[0, 80], [300, 80]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "road", "name": "林荫小路", "width": 6 },
+      "geometry": { "type": "LineString", "coordinates": [[50, 100], [150, 100]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "road", "name": "环路", "width": 12 },
+      "geometry": { "type": "LineString", "coordinates": [[0, 120], [300, 120]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "water", "name": "人工湖" },
+      "geometry": { "type": "Polygon", "coordinates": [[[60, 150], [140, 150], [140, 190], [60, 190], [60, 150]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "water", "name": "喷泉" },
+      "geometry": { "type": "Point", "coordinates": [250, 160] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "tree", "name": "银杏树" },
+      "geometry": { "type": "Point", "coordinates": [30, 200] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "tree", "name": "柳树" },
+      "geometry": { "type": "Point", "coordinates": [180, 210] }
+    }
+  ]
+}

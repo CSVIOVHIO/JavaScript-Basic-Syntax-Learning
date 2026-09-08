@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>JS 核心语法 Day 1-3 · 练习页面</title>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Microsoft YaHei", Arial, sans-serif; background: #f4f3ee; color: #1A1B1C; }
+  .page { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 8px 0 4px; }
+  .tip { background: #fff8e6; border: 1px solid #e6d9a8; border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.7; margin: 12px 0; }
+  .tip b { color: #8a5a00; }
+  #status { background: #eef4ff; border: 1px solid #b9cdf5; border-radius: 10px; padding: 8px 14px; font-size: 13px; margin: 12px 0; }
+  #output { margin-top: 16px; }
+  .block { background: #fff; border: 1px solid #e4e3dd; border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; }
+  .block .title { font-weight: 700; color: #9EACEA; display: block; margin-bottom: 4px; }
+  .block .msg { color: #1A1B1C; white-space: pre-wrap; word-break: break-all; }
+  .block .err { color: #d4380d; }
+  .ok { color: #389e0d; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>JavaScript 核心语法 Day 1-3 · 练习页面</h1>
+  <div class="tip">
+    <b>怎么用：</b>① 在 practice 文件夹里启动本地服务器（地址栏输入 <b>cmd</b> 回车，再输入
+    <b>python -m http.server 8000</b> 回车）；② 浏览器打开
+    <b>http://localhost:8000/practice.html</b>；③ 打开页面后，结果会自动出现在下方，
+    同时按 <b>F12</b> 可以在 Console 控制台看到同样的输出。
+  </div>
+  <div id="status">⏳ 练习加载中，请稍候……</div>
+  <div id="output"></div>
+</div>
+
+<script>
+/* ============================================================
+   页面显示 + 控制台 双输出工具（先学会用它看结果）
+   ============================================================ */
+function show(tag, msg, isError) {
+  var box = document.createElement("div");
+  box.className = "block";
+  box.innerHTML = "<span class='title'>" + tag + "</span><span class='msg" +
+    (isError ? " err" : "") + "'>" + msg + "</span>";
+  document.getElementById("output").appendChild(box);
+  console.log(tag, msg);
+}
+
+/* ============================================================
+   练习 1~5：Promise 核心（token → 数据 → 错误捕获）
+   ============================================================ */
+
+// —— 练习 1：new Promise，1 秒后成功（resolve）——
+show("练习 1 · 题目", "创建一个 Promise，1 秒后成功，用 .then 拿结果。");
+var p1 = new Promise(function (resolve, reject) {
+  setTimeout(function () {
+    resolve("1 秒到啦，这是 resolve 传出来的数据");
+  }, 1000);
+});
+p1.then(function (data) {
+  show("练习 1 · 结果", "✅ " + data);
+});
+
+// —— 练习 2：Promise 失败（reject），用 .catch 捕获 ——
+show("练习 2 · 题目", "创建一个 Promise，模拟请求失败，用 .catch 捕获错误。");
+var p2 = new Promise(function (resolve, reject) {
+  setTimeout(function () {
+    reject(new Error("模拟：服务器 500 错误"));
+  }, 500);
+});
+p2.then(function (data) {
+  show("练习 2 · 结果", "（这行不会执行，因为上面 reject 了）" + data);
+}).catch(function (err) {
+  show("练习 2 · 结果", "✅ 已捕获预期错误：" + err.message);
+});
+
+// —— 练习 3：Promise 链 —— 先请求 token，再用 token 请求数据 ——
+show("练习 3 · 题目", "模拟真实场景：先请求 token，拿到后再用 token 请求数据（.then 链式调用）。");
+function getToken() {
+  return new Promise(function (resolve) {
+    setTimeout(function () { resolve("token-abc123"); }, 500);
+  });
+}
+function getData(token) {
+  return new Promise(function (resolve) {
+    setTimeout(function () { resolve("用 " + token + " 换来的正式数据 GeoJSON"); }, 500);
+  });
+}
+getToken()
+  .then(function (token) {
+    show("练习 3 · 第 1 步", "拿到 token：" + token);
+    return getData(token);          // 关键：把新的 Promise return 出去，链条才能继续
+  })
+  .then(function (data) {
+    show("练习 3 · 第 2 步", "✅ " + data);
+  });
+
+// —— 练习 4：链条中间失败，错误被 catch 统一捕获，后面不再执行 ——
+show("练习 4 · 题目", "第一步获取 token 就失败，观察 .catch 如何统一捕获、后续不执行。");
+function getTokenFail() {
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () { reject(new Error("获取 token 失败（网络断开）")); }, 400);
+  });
+}
+getTokenFail()
+  .then(function (token) {
+    show("练习 4 · 中间步", "（不会执行）拿到 token：" + token);
+    return getData(token);
+  })
+  .then(function (data) {
+    show("练习 4 · 最后步", "（不会执行）" + data);
+  })
+  .catch(function (err) {
+    show("练习 4 · 结果", "✅ 已捕获预期错误：" + err.message + "（后面的步骤自动跳过）");
+  });
+
+// —— 练习 5：async / await + try / catch 重写练习 3 ——
+show("练习 5 · 题目", "用 async/await 语法糖重写「token → 数据」，配合 try/catch 捕获错误。");
+async function main() {
+  try {
+    var token = await getToken();
+    show("练习 5 · 第 1 步", "await 拿到 token：" + token);
+    var data = await getData(token);
+    show("练习 5 · 第 2 步", "✅ " + data);
+  } catch (err) {
+    show("练习 5 · 结果", "❌ " + err.message, true);
+  }
+}
+main();
+
+/* ============================================================
+   练习 6~9：axios + GeoJSON（需要本地服务器 + 联网加载 axios）
+   ============================================================ */
+if (typeof axios === "undefined") {
+  document.getElementById("status").innerHTML =
+    "⚠️ axios 加载失败（需要联网）。请确认电脑能上网后刷新页面。";
+}
+
+async function runGeoJSONPractice() {
+  document.getElementById("status").innerHTML = "⏳ 正在请求 geodata.json ……";
+  try {
+    /* —— 练习 6：axios 发 GET 请求，拿本地 GeoJSON，输出 features 长度 —— */
+    show("练习 6 · 题目", "用 axios 发 GET 请求读取本地 geodata.json，输出 features 数组长度。");
+    var res = await axios.get("geodata.json");
+    var geojson = res.data;
+    show("练习 6 · 结果", "✅ 请求成功！features 数组长度 = " + geojson.features.length +
+      "（这个 geojson 一共 " + geojson.features.length + " 个要素）");
+
+    /* —— 练习 7：map 把每个要素的 properties 提取成新数组 —— */
+    show("练习 7 · 题目", "用 map 把所有 features 的 properties 提取为一个新数组。");
+    var allProps = geojson.features.map(function (f) {
+      return f.properties;
+    });
+    show("练习 7 · 结果", "✅ 提取出 " + allProps.length + " 个 properties，例如：" +
+      JSON.stringify(allProps[0]));
+
+    /* —— 练习 8：filter 筛选 type 为 building 的要素 —— */
+    show("练习 8 · 题目", "用 filter 筛选出 properties.type 为 \"building\" 的要素。");
+    var buildings = geojson.features.filter(function (f) {
+      return f.properties.type === "building";
+    });
+    show("练习 8 · 结果", "✅ 筛出 " + buildings.length + " 个 building 要素：" +
+      buildings.map(function (b) { return b.properties.name; }).join("、"));
+
+    /* —— 练习 9：reduce 统计不同 type 的要素数量 —— */
+    show("练习 9 · 题目", "用 reduce 统计 GeoJSON 里不同 type 的要素数量。");
+    var typeCount = geojson.features.reduce(function (acc, f) {
+      var t = f.properties.type;
+      acc[t] = (acc[t] || 0) + 1;   // 第一次遇到这个 type 时是 undefined，用 0 兜底再加 1
+      return acc;
+    }, {});
+    show("练习 9 · 结果", "✅ 统计结果：" + JSON.stringify(typeCount));
+
+    document.getElementById("status").innerHTML =
+      "🎉 全部练习执行完成！结果见下方列表（也见 F12 控制台）。";
+  } catch (err) {
+    document.getElementById("status").innerHTML =
+      "❌ 请求失败：" + err.message + "。<br>最常见原因：你是直接双击打开页面的。" +
+      "请先在 practice 文件夹启动本地服务器（python -m http.server 8000），" +
+      "再访问 http://localhost:8000/practice.html";
+    show("练习 6~9 · 错误", "❌ " + err.message, true);
+  }
+}
+runGeoJSONPractice();
+</script>
+<script src="test.js"></script>
+</body>
+</html>
